@@ -1,26 +1,36 @@
-import 'dart:convert';
-import 'package:http/http.dart' as http;
+import 'package:dio/dio.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 class ApiService {
-  static const String baseUrl = 'http://127.0.0.1:8000/api'; // since you're on web
+  static final Dio dio = Dio();
+  static final _storage = const FlutterSecureStorage();
 
-  Future<List<dynamic>> fetchBooks() async {
-    final response = await http.get(Uri.parse('$baseUrl/books/'));
+  static const String baseUrl = "http://10.0.2.2:8000/api";
 
-    if (response.statusCode == 200) {
-      final data = json.decode(response.body);
+  static Future<void> init() async {
+    dio.options.baseUrl = baseUrl;
 
-      // handle paginated response
-      if (data is Map<String, dynamic> && data.containsKey('results')) {
-        return data['results'];
-      }
+    dio.interceptors.add(
+      InterceptorsWrapper(
+        onRequest: (options, handler) async {
+          final token = await _storage.read(key: "access");
+          if (token != null) {
+            options.headers["Authorization"] = "Bearer $token";
+          }
+          return handler.next(options);
+        },
+        onError: (error, handler) {
+          return handler.next(error);
+        },
+      ),
+    );
+  }
 
-      // fallback for non-paginated responses
-      if (data is List) return data;
+  static Future<void> saveToken(String token) async {
+    await _storage.write(key: "access", value: token);
+  }
 
-      return [];
-    } else {
-      throw Exception('Failed to load books');
-    }
+  static Future<void> clearToken() async {
+    await _storage.delete(key: "access");
   }
 }
