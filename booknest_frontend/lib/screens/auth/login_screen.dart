@@ -1,3 +1,4 @@
+import 'package:booknest_frontend/screens/home/nav_root.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../providers/auth_provider.dart';
@@ -45,8 +46,9 @@ class _LoginScreenState extends State<LoginScreen> {
                 );
 
                 if (success) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text("Login Successful")),
+                  Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(builder: (_) => NavRoot()),
                   );
                 } else {
                   ScaffoldMessenger.of(context).showSnackBar(
