@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'package:dio/dio.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
@@ -20,16 +21,48 @@ class ApiService {
           return handler.next(options);
         },
         onError: (error, handler) {
+          print("API ERROR: ${error.response?.data}");
           return handler.next(error);
         },
       ),
     );
   }
 
+  /// -----------------------------
+  /// LOGIN METHOD (important)
+  /// -----------------------------
+  static Future<Map<String, dynamic>?> login(
+      String username, String password) async {
+    try {
+      final response = await dio.post(
+        "/auth/token/",
+        data: jsonEncode({
+          "username": username.trim(),
+          "password": password.trim(),
+        }),
+        options: Options(headers: {
+          "Content-Type": "application/json",
+          "Accept": "application/json",
+        }),
+      );
+
+      return response.data;
+    } catch (e) {
+      if (e is DioError) {
+        print("LOGIN ERROR: ${e.response?.data}");
+      } else {
+        print("LOGIN ERROR: $e");
+      }
+      return null;
+    }
+  }
+
+  /// Save access token
   static Future<void> saveToken(String token) async {
     await _storage.write(key: "access", value: token);
   }
 
+  /// Clear token
   static Future<void> clearToken() async {
     await _storage.delete(key: "access");
   }

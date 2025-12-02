@@ -27,10 +27,17 @@ class AuthProvider extends ChangeNotifier {
       notifyListeners();
       return true;
     } catch (e) {
-      isLoading = false;
-      notifyListeners();
-      return false;
+    print("LOGIN ERROR: $e");
+
+    if (e is DioError) {
+      print("RESPONSE DATA: ${e.response?.data}");
     }
+
+    isLoading = false;
+    notifyListeners();
+    return false;
+}
+
   }
 
   Future<void> logout() async {
