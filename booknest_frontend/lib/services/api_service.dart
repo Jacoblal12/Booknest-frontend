@@ -1,12 +1,23 @@
 import 'dart:convert';
+import 'dart:io' show Platform;
+
 import 'package:dio/dio.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 class ApiService {
   static final Dio dio = Dio();
   static final _storage = const FlutterSecureStorage();
 
-  static const String baseUrl = "http://10.0.2.2:8000/api";
+  /// BASE URL auto-chooses correct host
+  static String get baseUrl {
+    if (kIsWeb) {
+      return "http://127.0.0.1:8000/api"; // ✔ Web (Browser)
+    }
+
+    // Android emulator uses 10.0.2.2 to reach PC
+    return "http://10.0.2.2:8000/api"; // ✔ Android
+  }
 
   static Future<void> init() async {
     dio.options.baseUrl = baseUrl;
@@ -29,31 +40,38 @@ class ApiService {
   }
 
   /// -----------------------------
-  /// LOGIN METHOD (important)
+  /// LOGIN METHOD
   /// -----------------------------
-  static Future<Map<String, dynamic>?> login(
-      String username, String password) async {
+  static Future<bool> login(String username, String password) async {
     try {
+      print("🔵 Sending login request to → ${dio.options.baseUrl}/auth/token/");
+      print("Payload => username: $username, password: $password");
+
       final response = await dio.post(
         "/auth/token/",
-        data: jsonEncode({
+        data: {
           "username": username.trim(),
           "password": password.trim(),
-        }),
-        options: Options(headers: {
-          "Content-Type": "application/json",
-          "Accept": "application/json",
-        }),
+        },
       );
 
-      return response.data;
+      print("🟢 Response status: ${response.statusCode}");
+      print("🟢 Response data: ${response.data}");
+
+      final accessToken = response.data["access"];
+      await saveToken(accessToken);
+
+      return true;
     } catch (e) {
-      if (e is DioError) {
-        print("LOGIN ERROR: ${e.response?.data}");
+      print("🔴 LOGIN ERROR OCCURRED:");
+      if (e is DioException) {
+        print("Status Code: ${e.response?.statusCode}");
+        print("Response: ${e.response?.data}");
       } else {
-        print("LOGIN ERROR: $e");
+        print("Error: $e");
       }
-      return null;
+
+      return false;
     }
   }
 
