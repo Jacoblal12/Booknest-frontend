@@ -1,0 +1,66 @@
+import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import '../../providers/auth_provider.dart';
+
+class LoginScreen extends StatefulWidget {
+  @override
+  State<LoginScreen> createState() => _LoginScreenState();
+}
+
+class _LoginScreenState extends State<LoginScreen> {
+  final usernameCtrl = TextEditingController();
+  final passwordCtrl = TextEditingController();
+
+  @override
+  Widget build(BuildContext context) {
+    final auth = Provider.of<AuthProvider>(context);
+
+    return Scaffold(
+      body: Padding(
+        padding: const EdgeInsets.all(20),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const Text("BookNest Login", style: TextStyle(fontSize: 26)),
+            const SizedBox(height: 30),
+
+            TextField(
+              controller: usernameCtrl,
+              decoration: const InputDecoration(labelText: "Username"),
+            ),
+
+            TextField(
+              controller: passwordCtrl,
+              decoration: const InputDecoration(labelText: "Password"),
+              obscureText: true,
+            ),
+
+            const SizedBox(height: 25),
+
+            ElevatedButton(
+              onPressed: () async {
+                bool success = await auth.login(
+                  usernameCtrl.text.trim(),
+                  passwordCtrl.text.trim(),
+                );
+
+                if (success) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text("Login Successful")),
+                  );
+                } else {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text("Invalid Credentials")),
+                  );
+                }
+              },
+              child: auth.isLoading
+                  ? const CircularProgressIndicator(color: Colors.white)
+                  : const Text("Login"),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
