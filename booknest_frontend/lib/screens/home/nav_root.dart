@@ -11,11 +11,7 @@ class NavRoot extends StatefulWidget {
 class _NavRootState extends State<NavRoot> {
   int _currentIndex = 0;
 
-  final List<Widget> _screens = [
-    HomeScreen(),
-    BooksScreen(),
-    ProfileScreen(),
-  ];
+  final List<Widget> _screens = [HomeScreen(), BooksScreen(), ProfileScreen()];
 
   @override
   Widget build(BuildContext context) {
@@ -27,18 +23,9 @@ class _NavRootState extends State<NavRoot> {
           setState(() => _currentIndex = index);
         },
         items: const [
-          BottomNavigationBarItem(
-            icon: Icon(Icons.home),
-            label: "Home",
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.menu_book),
-            label: "Books",
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.person),
-            label: "Profile",
-          ),
+          BottomNavigationBarItem(icon: Icon(Icons.home), label: "Home"),
+          BottomNavigationBarItem(icon: Icon(Icons.menu_book), label: "Books"),
+          BottomNavigationBarItem(icon: Icon(Icons.person), label: "Profile"),
         ],
       ),
     );

@@ -83,4 +83,15 @@ class ApiService {
       return [];
     }
   }
+
+  static Future<List<Book>> getMyBooks() async {
+    try {
+      final response = await dio.get("/books/my/");
+      final List data = response.data['results'];
+      return data.map((json) => Book.fromJson(json)).toList();
+    } catch (e) {
+      print("ERROR fetching my books: $e");
+      return [];
+    }
+  }
 }
