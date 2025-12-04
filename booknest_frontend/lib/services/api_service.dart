@@ -94,4 +94,24 @@ class ApiService {
       return [];
     }
   }
+
+  static Future<bool> addToWishlist(int bookId) async {
+    try {
+      await dio.post("/wishlist/", data: {"book": bookId});
+      return true;
+    } catch (e) {
+      print("Wishlist add error: $e");
+      return false;
+    }
+  }
+
+  static Future<bool> removeFromWishlist(int wishlistId) async {
+    try {
+      await dio.delete("/wishlist/$wishlistId/");
+      return true;
+    } catch (e) {
+      print("Wishlist delete error: $e");
+      return false;
+    }
+  }
 }
