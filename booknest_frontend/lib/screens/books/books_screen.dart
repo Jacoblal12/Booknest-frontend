@@ -39,11 +39,12 @@ class _BooksScreenState extends State<BooksScreen> {
           return GridView.builder(
             padding: const EdgeInsets.all(12),
             gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: 2, // two per row like Flipkart
-              childAspectRatio: 0.62, // shape of card
+              crossAxisCount: 2,
+              mainAxisExtent: 260, // <- FIXED HEIGHT FOR EACH GRID ITEM
               crossAxisSpacing: 12,
               mainAxisSpacing: 12,
             ),
+
             itemCount: books.length,
             itemBuilder: (context, index) {
               final b = books[index];
@@ -64,89 +65,88 @@ class BookCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // 🔍 DEBUG: print final image URL
-    print(
-      "IMAGE URL → ${ApiService.baseUrl.replaceAll('/api', '')}${book.cover}",
-    );
-
-    return Card(
-      elevation: 3,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      child: InkWell(
-        onTap: () {},
-        borderRadius: BorderRadius.circular(12),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // IMAGE here ⬇⬇⬇
-            Container(
-              height: 100,
-              width: double.maxFinite,
-              decoration: BoxDecoration(
-                borderRadius: const BorderRadius.vertical(
-                  top: Radius.circular(12),
-                ),
-                image: book.cover != null
-                    ? DecorationImage(
-                        image: NetworkImage("${book.cover}"),
-                        fit: BoxFit.contain,
-                      )
-                    : const DecorationImage(
-                        image: AssetImage("assets/images/book_placeholder.png"),
-                        fit: BoxFit.cover,
-                      ),
-              ),
-            ),
-
-            // Title + Author
-            Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: Text(
-                book.title,
-                maxLines: 2,
-                overflow: TextOverflow.ellipsis,
-                style: const TextStyle(
-                  fontWeight: FontWeight.bold,
-                  fontSize: 16,
-                ),
-              ),
-            ),
-
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 8),
-              child: Text(
-                book.author,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: TextStyle(fontSize: 13, color: Colors.grey.shade700),
-              ),
-            ),
-
-            const Spacer(),
-
-            // Availability Pill
-            Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: Container(
-                padding: const EdgeInsets.symmetric(
-                  vertical: 4,
-                  horizontal: 12,
-                ),
+    return SizedBox(
+      width: 160, // FIXED CARD WIDTH
+      height: 260, // FIXED CARD HEIGHT
+      child: Card(
+        elevation: 3,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        child: InkWell(
+          onTap: () {},
+          borderRadius: BorderRadius.circular(12),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // FIXED IMAGE SIZE
+              Container(
+                height: 130,
+                width: double.infinity,
                 decoration: BoxDecoration(
-                  color: Colors.deepPurple.shade50,
-                  borderRadius: BorderRadius.circular(50),
+                  borderRadius: const BorderRadius.vertical(
+                    top: Radius.circular(12),
+                  ),
+                  image: book.cover != null
+                      ? DecorationImage(
+                          image: NetworkImage("${book.cover}"),
+                          fit: BoxFit.scaleDown,
+                        )
+                      : const DecorationImage(
+                          image: AssetImage(
+                            "assets/images/book_placeholder.png",
+                          ),
+                          fit: BoxFit.cover,
+                        ),
                 ),
+              ),
+
+              Padding(
+                padding: const EdgeInsets.all(8.0),
                 child: Text(
-                  book.availableFor.toUpperCase(),
+                  book.title,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
                   style: const TextStyle(
-                    fontWeight: FontWeight.w600,
-                    fontSize: 12,
-                    color: Colors.deepPurple,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 14,
                   ),
                 ),
               ),
-            ),
-          ],
+
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 8),
+                child: Text(
+                  book.author,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(fontSize: 12, color: Colors.grey.shade700),
+                ),
+              ),
+
+              const Spacer(),
+
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Container(
+                  padding: const EdgeInsets.symmetric(
+                    vertical: 4,
+                    horizontal: 12,
+                  ),
+                  decoration: BoxDecoration(
+                    color: Colors.deepPurple.shade50,
+                    borderRadius: BorderRadius.circular(50),
+                  ),
+                  child: Text(
+                    book.availableFor.toUpperCase(),
+                    style: const TextStyle(
+                      fontSize: 11,
+                      fontWeight: FontWeight.w600,
+                      color: Colors.deepPurple,
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
