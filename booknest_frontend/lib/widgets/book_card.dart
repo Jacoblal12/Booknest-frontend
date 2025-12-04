@@ -1,3 +1,4 @@
+import 'package:booknest_frontend/screens/books/book_details_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:booknest_frontend/models/book.dart';
 // ignore: unused_import
@@ -18,7 +19,15 @@ class BookCard extends StatelessWidget {
         elevation: 3,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
         child: InkWell(
-          onTap: onTap,
+          onTap: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => BookDetailsScreen(book: book),
+              ),
+            );
+          },
+
           borderRadius: BorderRadius.circular(12),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
