@@ -37,6 +37,7 @@ dependencies:
   intl: ^0.20.2
   # optional for pagination UI:
   flutter_spinkit: ^5.1.0
+  jwt_decode: ^0.3.1
 
 
   # The following adds the Cupertino Icons font to your application.
