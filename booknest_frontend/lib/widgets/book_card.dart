@@ -34,7 +34,7 @@ class BookCard extends StatelessWidget {
             children: [
               // FIXED IMAGE
               Container(
-                height: 130,
+                height: 90,
                 width: double.infinity,
                 decoration: BoxDecoration(
                   borderRadius: const BorderRadius.vertical(
@@ -97,6 +97,32 @@ class BookCard extends StatelessWidget {
                       fontWeight: FontWeight.w600,
                       color: Colors.deepPurple,
                     ),
+                  ),
+                ),
+              ),
+
+              Positioned(
+                right: 8,
+                top: 8,
+                child: GestureDetector(
+                  onTap: () async {
+                    final added = await ApiService.addToWishlist(book.id);
+                    if (added) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(content: Text("Added to wishlist")),
+                      );
+                    }
+                  },
+                  child: Container(
+                    padding: const EdgeInsets.all(6),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      shape: BoxShape.circle,
+                      boxShadow: [
+                        BoxShadow(color: Colors.black26, blurRadius: 4),
+                      ],
+                    ),
+                    child: const Icon(Icons.favorite_border, color: Colors.red),
                   ),
                 ),
               ),

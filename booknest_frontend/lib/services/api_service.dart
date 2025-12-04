@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'package:booknest_frontend/models/book.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
@@ -114,4 +115,54 @@ class ApiService {
       return false;
     }
   }
+
+  static Future<bool> uploadBook({
+    required String title,
+    required String author,
+    required String description,
+    required String availableFor,
+    File? imageFile, required String isbn, required String genre,
+  }) async {
+    try {
+      FormData formData = FormData.fromMap({
+        "title": title,
+        "author": author,
+        "description": description,
+        "available_for": availableFor,
+        if (imageFile != null)
+          "cover": await MultipartFile.fromFile(
+            imageFile.path,
+            filename: "cover.jpg",
+          ),
+      });
+
+      final response = await dio.post("/books/", data: formData);
+      print("Uploaded: ${response.data}");
+
+      return true;
+    } catch (e) {
+      print("UPLOAD ERROR: $e");
+      return false;
+    }
+  }
+
+  static Future<bool> requestBook({
+    required int bookId,
+    required String requestType,
+    String message = "",
+  }) async {
+    try {
+      final response = await dio.post(
+        "/book-requests/",
+        data: {"book": bookId, "request_type": requestType, "message": message},
+      );
+
+      print("Request created: ${response.data}");
+      return true;
+    } catch (e) {
+      print("Request error: $e");
+      return false;
+    }
+  }
+
 }

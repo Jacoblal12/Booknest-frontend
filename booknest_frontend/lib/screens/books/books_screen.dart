@@ -1,7 +1,8 @@
+import 'package:booknest_frontend/screens/books/add_books_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:booknest_frontend/services/api_service.dart';
 import 'package:booknest_frontend/models/book.dart';
-import 'package:booknest_frontend/widgets/book_card.dart'; // <-- FIXED
+import 'package:booknest_frontend/widgets/book_card.dart';
 
 class BooksScreen extends StatefulWidget {
   const BooksScreen({super.key});
@@ -38,6 +39,18 @@ class _BooksScreenState extends State<BooksScreen> {
               Tab(text: "My Books"),
             ],
           ),
+        ),
+
+        // 🔥 ADD BOOK BUTTON
+        floatingActionButton: FloatingActionButton(
+          backgroundColor: Colors.deepPurple,
+          child: const Icon(Icons.add, color: Colors.white),
+          onPressed: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (_) => const AddBookScreen()),
+            );
+          },
         ),
 
         body: TabBarView(

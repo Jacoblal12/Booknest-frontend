@@ -130,9 +130,25 @@ class BookDetailsScreen extends StatelessWidget {
                     borderRadius: BorderRadius.circular(28),
                   ),
                 ),
-                onPressed: () {
-                  // 🌟 NEXT: implement /book-requests/
+                onPressed: () async {
+                  final success = await ApiService.requestBook(
+                    bookId: book.id,
+                    requestType: book.availableFor, // rent/exchange/donate
+                  );
+
+                  if (success && context.mounted) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text("Request submitted successfully!"),
+                      ),
+                    );
+                  } else {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text("Failed to send request.")),
+                    );
+                  }
                 },
+
                 child: const Text(
                   "Request Book",
                   style: TextStyle(fontSize: 16, color: Colors.white),
