@@ -6,6 +6,7 @@ class Book {
   final String? description;
   final String? cover;
   final String availableFor;
+  final int ownerId;
 
   Book({
     required this.id,
@@ -15,6 +16,7 @@ class Book {
     required this.availableFor,
     this.description,
     this.cover,
+    required this.ownerId,
   });
 
   factory Book.fromJson(Map<String, dynamic> json) {
@@ -26,6 +28,7 @@ class Book {
       description: json["description"],
       cover: json["cover"],
       availableFor: json["available_for"],
+      ownerId: json["owner"], // backend already sends this ✔️
     );
   }
 }

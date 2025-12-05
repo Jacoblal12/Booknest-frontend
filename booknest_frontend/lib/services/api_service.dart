@@ -2,7 +2,8 @@ import 'dart:io';
 import 'package:booknest_frontend/models/book.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
-import 'package:flutter/foundation.dart'; // <-- IMPORTANT
+import 'package:flutter/foundation.dart';
+import 'package:jwt_decode/jwt_decode.dart'; // <-- IMPORTANT
 
 class ApiService {
   static final Dio dio = Dio();
@@ -121,7 +122,9 @@ class ApiService {
     required String author,
     required String description,
     required String availableFor,
-    File? imageFile, required String isbn, required String genre,
+    File? imageFile,
+    required String isbn,
+    required String genre,
   }) async {
     try {
       FormData formData = FormData.fromMap({
@@ -165,4 +168,10 @@ class ApiService {
     }
   }
 
+  static Future<String?> getUserId() async {
+    final token = await _storage.read(key: "access"); // already saved at login
+    if (token == null) return null;
+    Map<String, dynamic> data = Jwt.parseJwt(token);
+    return data["user_id"].toString();
+  }
 }
