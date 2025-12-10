@@ -2,6 +2,7 @@ import 'dart:io';
 import 'package:booknest_frontend/models/book.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+// ignore: unused_import
 import 'package:flutter/foundation.dart';
 import 'package:jwt_decode/jwt_decode.dart'; // <-- IMPORTANT
 
@@ -9,21 +10,7 @@ class ApiService {
   static final Dio dio = Dio();
   static final _storage = const FlutterSecureStorage();
 
-  // Platform-safe Base URL (works on Web + Android + PC)
-  static final String baseUrl = _detectBaseUrl();
-  static final String mediaBaseUrl = _detectBaseUrl();
-
-  static String _detectBaseUrl() {
-    if (kIsWeb) {
-      // Web must use localhost
-      return "http://127.0.0.1:8000/api";
-    }
-
-    // For non-web platforms:
-    // Android emulator uses 10.0.2.2
-    // Windows/macOS/Linux use localhost
-    return "http://10.0.2.2:8000/api";
-  }
+  static const String baseUrl = "http://10.0.2.2:8000/api";
 
   static Future<void> init() async {
     dio.options.baseUrl = baseUrl;
