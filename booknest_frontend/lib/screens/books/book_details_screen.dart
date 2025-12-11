@@ -106,8 +106,8 @@ class BookDetailsScreen extends StatelessWidget {
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
               child: Text(
-                book.description?.trim().isNotEmpty == true
-                    ? book.description!
+                book.description.trim().isNotEmpty == true
+                    ? book.description
                     : "No description provided.",
                 style: TextStyle(fontSize: 15, color: Colors.grey.shade800),
               ),
