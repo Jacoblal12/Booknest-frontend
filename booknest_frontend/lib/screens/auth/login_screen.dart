@@ -1,3 +1,4 @@
+import 'package:booknest_frontend/screens/auth/signup_screen.dart';
 import 'package:booknest_frontend/screens/home/nav_root.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -59,6 +60,16 @@ class _LoginScreenState extends State<LoginScreen> {
               child: auth.isLoading
                   ? const CircularProgressIndicator(color: Colors.white)
                   : const Text("Login"),
+            ),
+
+            TextButton(
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => const SignupScreen()),
+                );
+              },
+              child: const Text("Don't have an account? Sign up"),
             ),
           ],
         ),
