@@ -19,6 +19,7 @@ class ApiService {
       InterceptorsWrapper(
         onRequest: (options, handler) async {
           final token = await _storage.read(key: "access");
+          print("🔑 Using Token: $token");
           if (token != null) {
             options.headers["Authorization"] = "Bearer $token";
           }
@@ -49,6 +50,43 @@ class ApiService {
     }
   }
 
+  static Future<Map<String, dynamic>> register({
+    required String username,
+    required String password,
+    required String email,
+  }) async {
+    try {
+      final response = await dio.post(
+        "/auth/register/",
+        data: {"username": username, "password": password, "email": email},
+      );
+
+      return {"success": true, "message": response.data["message"]};
+    } catch (e) {
+      if (e is DioException) {
+        return {
+          "success": false,
+          "message": e.response?.data["error"] ?? "Registration failed",
+        };
+      }
+      return {"success": false, "message": "Unknown error"};
+    }
+  }
+
+  static Future<bool> signup(
+    String username,
+    String email,
+    String password,
+  ) async {
+    final result = await ApiService.register(
+      username: username,
+      email: email,
+      password: password,
+    );
+
+    return result["success"] == true;
+  }
+
   static Future<void> saveToken(String token) async {
     await _storage.write(key: "access", value: token);
   }
@@ -58,30 +96,22 @@ class ApiService {
   }
 
   static Future<List<Book>> getBooks() async {
-    try {
-      final response = await dio.get("/books/");
+    final response = await dio.get("/books/");
 
-      final data = response.data;
+    print("📥 Books Response: ${response.data}");
 
-      // Works for both [ {...}, {...} ] and { results: [...] }
-      final List items = data is Map ? data["results"] ?? [] : data;
+    // FIX: API returns {count, next, previous, results: [...]}
+    final List booksJson = response.data["results"];
 
-      return items.map((json) => Book.fromJson(json)).toList();
-    } catch (e) {
-      print("getBooks ERROR: $e");
-      return [];
-    }
+    return booksJson.map((json) => Book.fromJson(json)).toList();
   }
 
   static Future<List<Book>> getMyBooks() async {
-    try {
-      final response = await dio.get("/books/my/");
-      final List data = response.data['results'];
-      return data.map((json) => Book.fromJson(json)).toList();
-    } catch (e) {
-      print("ERROR fetching my books: $e");
-      return [];
-    }
+    final response = await dio.get("/books/my/");
+
+    final List booksJson = response.data["results"];
+
+    return booksJson.map((json) => Book.fromJson(json)).toList();
   }
 
   static Future<bool> addToWishlist(int bookId) async {
