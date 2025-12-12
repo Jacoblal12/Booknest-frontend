@@ -12,6 +12,7 @@ class LoginScreen extends StatefulWidget {
 class _LoginScreenState extends State<LoginScreen> {
   final usernameCtrl = TextEditingController();
   final passwordCtrl = TextEditingController();
+  bool _showPassword = false;
 
   @override
   Widget build(BuildContext context) {
@@ -33,8 +34,20 @@ class _LoginScreenState extends State<LoginScreen> {
 
             TextField(
               controller: passwordCtrl,
-              decoration: const InputDecoration(labelText: "Password"),
-              obscureText: true,
+              decoration: InputDecoration(
+                labelText: "Password",
+                suffixIcon: IconButton(
+                  icon: Icon(
+                    _showPassword ? Icons.visibility : Icons.visibility_off,
+                  ),
+                  onPressed: () {
+                    setState(() {
+                      _showPassword = !_showPassword;
+                    });
+                  },
+                ),
+              ),
+              obscureText: !_showPassword,
             ),
 
             const SizedBox(height: 25),
