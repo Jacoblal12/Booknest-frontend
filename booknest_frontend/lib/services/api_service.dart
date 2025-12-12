@@ -73,6 +73,7 @@ class ApiService {
     }
   }
 
+
   static Future<bool> signup(
     String username,
     String email,
