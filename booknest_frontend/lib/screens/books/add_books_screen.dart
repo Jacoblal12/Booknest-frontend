@@ -114,7 +114,7 @@ class _AddBookScreenState extends State<AddBookScreen> {
 
               // GENRE DROPDOWN
               DropdownButtonFormField(
-                value: genre,
+                initialValue: genre,
                 decoration: const InputDecoration(labelText: "Genre"),
                 items: const [
                   DropdownMenuItem(value: "fiction", child: Text("Fiction")),
@@ -142,7 +142,7 @@ class _AddBookScreenState extends State<AddBookScreen> {
 
               // AVAILABLE FOR DROPDOWN
               DropdownButtonFormField(
-                value: availableFor,
+                initialValue: availableFor,
                 decoration: const InputDecoration(labelText: "Available For"),
                 items: const [
                   DropdownMenuItem(value: "rent", child: Text("Rent")),

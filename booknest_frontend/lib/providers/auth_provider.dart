@@ -29,7 +29,7 @@ class AuthProvider extends ChangeNotifier {
     } catch (e) {
     print("LOGIN ERROR: $e");
 
-    if (e is DioError) {
+    if (e is DioException) {
       print("RESPONSE DATA: ${e.response?.data}");
     }
 

@@ -4,6 +4,8 @@ import '../books/books_screen.dart';
 import '../auth/profile_screen.dart';
 
 class NavRoot extends StatefulWidget {
+  const NavRoot({super.key});
+
   @override
   _NavRootState createState() => _NavRootState();
 }
