@@ -73,7 +73,6 @@ class ApiService {
     }
   }
 
-
   static Future<bool> signup(
     String username,
     String email,
@@ -182,6 +181,30 @@ class ApiService {
       return true;
     } catch (e) {
       print("Request error: $e");
+      return false;
+    }
+  }
+
+  static Future<bool> sendBookRequest({
+    required int bookId,
+    required String requestType,
+    String? message,
+  }) async {
+    try {
+      final response = await dio.post(
+        "/bookrequests/",
+        data: {
+          "book": bookId,
+          "request_type": requestType,
+          "message": message ?? "",
+        },
+      );
+
+      return response.statusCode == 201;
+    } catch (e) {
+      if (e is DioException) {
+        print("REQUEST ERROR: ${e.response?.data}");
+      }
       return false;
     }
   }

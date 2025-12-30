@@ -6,6 +6,97 @@ import 'package:booknest_frontend/services/api_service.dart';
 class BookDetailsScreen extends StatelessWidget {
   final Book book;
 
+  void showRequestSheet(BuildContext context, Book book) {
+    final TextEditingController messageController = TextEditingController();
+    final String requestType = book.availableFor;
+
+    showModalBottomSheet(
+      context: context,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (context) {
+        return Padding(
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Text(
+                "Request Book",
+                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+              ),
+
+              const SizedBox(height: 12),
+
+              // Show request type (read-only)
+              Container(
+                padding: const EdgeInsets.symmetric(
+                  vertical: 8,
+                  horizontal: 12,
+                ),
+                decoration: BoxDecoration(
+                  color: Colors.deepPurple.shade50,
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Text(
+                  "Request Type: ${requestType.toUpperCase()}",
+                  style: const TextStyle(
+                    fontWeight: FontWeight.w600,
+                    color: Colors.deepPurple,
+                  ),
+                ),
+              ),
+
+              const SizedBox(height: 16),
+
+              TextField(
+                controller: messageController,
+                maxLines: 3,
+                decoration: const InputDecoration(
+                  labelText: "Message (optional)",
+                  border: OutlineInputBorder(),
+                ),
+              ),
+
+              const SizedBox(height: 20),
+
+              SizedBox(
+                width: double.infinity,
+                height: 48,
+                child: ElevatedButton(
+                  onPressed: () async {
+                    final success = await ApiService.sendBookRequest(
+                      bookId: book.id,
+                      requestType: requestType,
+                      message: messageController.text,
+                    );
+
+                    if (!context.mounted) return;
+
+                    Navigator.pop(context);
+
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text(
+                          success
+                              ? "Request sent successfully"
+                              : "Failed to send request",
+                        ),
+                      ),
+                    );
+                  },
+                  child: const Text("Send Request"),
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+
   const BookDetailsScreen({super.key, required this.book});
 
   @override
@@ -118,42 +209,9 @@ class BookDetailsScreen extends StatelessWidget {
             // =====================
             // REQUEST ACTION BUTTON
             // =====================
-            Center(
-              child: ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.deepPurple,
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 40,
-                    vertical: 14,
-                  ),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(28),
-                  ),
-                ),
-                onPressed: () async {
-                  final success = await ApiService.requestBook(
-                    bookId: book.id,
-                    requestType: book.availableFor, // rent/exchange/donate
-                  );
-
-                  if (success && context.mounted) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                        content: Text("Request submitted successfully!"),
-                      ),
-                    );
-                  } else {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text("Failed to send request.")),
-                    );
-                  }
-                },
-
-                child: const Text(
-                  "Request Book",
-                  style: TextStyle(fontSize: 16, color: Colors.white),
-                ),
-              ),
+            ElevatedButton(
+              onPressed: () => showRequestSheet(context, book),
+              child: const Text("Request Book"),
             ),
 
             const SizedBox(height: 30),
