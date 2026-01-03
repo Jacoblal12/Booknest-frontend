@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'package:booknest_frontend/models/book.dart';
+import 'package:booknest_frontend/models/book_request.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 // ignore: unused_import
@@ -9,6 +10,8 @@ import 'package:jwt_decode/jwt_decode.dart'; // <-- IMPORTANT
 class ApiService {
   static final Dio dio = Dio();
   static final _storage = const FlutterSecureStorage();
+
+  static String? currentUsername;
 
   static const String baseUrl = "http://10.0.2.2:8000/api";
 
@@ -41,6 +44,7 @@ class ApiService {
       );
 
       final accessToken = response.data["access"];
+      currentUsername = username;
       await saveToken(accessToken);
 
       return true;
@@ -214,5 +218,30 @@ class ApiService {
     if (token == null) return null;
     Map<String, dynamic> data = Jwt.parseJwt(token);
     return data["user_id"].toString();
+  }
+
+  static Future<List<BookRequest>> getMyRequests() async {
+    try {
+      final response = await dio.get("/bookrequests/my/");
+      final List results = response.data['results'];
+
+      return results.map((json) => BookRequest.fromJson(json)).toList();
+    } catch (e) {
+      if (e is DioException) {
+        print("MY REQUESTS ERROR: ${e.response?.data}");
+      }
+      return [];
+    }
+  }
+
+  static Future<bool> hasRequestedBook(int bookId) async {
+    try {
+      final response = await dio.get("/bookrequests/my/");
+      final List results = response.data['results'];
+
+      return results.any((r) => r['book']['id'] == bookId);
+    } catch (_) {
+      return false;
+    }
   }
 }
