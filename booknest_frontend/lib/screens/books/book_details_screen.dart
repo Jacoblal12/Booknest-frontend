@@ -5,6 +5,7 @@ import 'package:booknest_frontend/services/api_service.dart';
 
 class BookDetailsScreen extends StatelessWidget {
   final Book book;
+  
 
   void showRequestSheet(BuildContext context, Book book) {
     final TextEditingController messageController = TextEditingController();
@@ -182,6 +183,33 @@ class BookDetailsScreen extends StatelessWidget {
             ),
 
             const SizedBox(height: 16),
+
+
+            // =====================
+            // OWN RESTRICTION CODE
+            // =====================
+
+            FutureBuilder<bool>(
+              future: ApiService.hasRequestedBook(book.id),
+              builder: (context, snapshot) {
+                final alreadyRequested = snapshot.data ?? false;
+                final isOwner = book.owner == ApiService.currentUsername;
+
+                if (isOwner) {
+                  return const Text("You own this book");
+                }
+
+                return ElevatedButton(
+                  onPressed: alreadyRequested
+                      ? null
+                      : () => showRequestSheet(context, book),
+                  child: Text(
+                    alreadyRequested ? "Already Requested" : "Request Book",
+                  ),
+                );
+              },
+            ),
+
 
             // =====================
             // DESCRIPTION
