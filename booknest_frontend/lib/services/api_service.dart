@@ -223,14 +223,29 @@ class ApiService {
   static Future<List<BookRequest>> getMyRequests() async {
     try {
       final response = await dio.get("/bookrequests/my/");
-      final List results = response.data['results'];
 
-      return results.map((json) => BookRequest.fromJson(json)).toList();
+      print("📥 My Requests Response: ${response.data}");
+
+      final List results = response.data is Map
+          ? response.data["results"] ?? []
+          : response.data;
+
+      return results.map((e) => BookRequest.fromJson(e)).toList();
     } catch (e) {
-      if (e is DioException) {
-        print("MY REQUESTS ERROR: ${e.response?.data}");
-      }
-      return [];
+      print("❌ Failed to fetch my requests: $e");
+      rethrow;
+    }
+  }
+
+  static Future<bool> updateRequestStatus({
+    required int requestId,
+    required String status,
+  }) async {
+    try {
+      await dio.patch("/bookrequests/$requestId/", data: {"status": status});
+      return true;
+    } catch (e) {
+      return false;
     }
   }
 
