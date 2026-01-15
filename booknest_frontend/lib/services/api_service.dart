@@ -12,6 +12,7 @@ class ApiService {
   static final _storage = const FlutterSecureStorage();
 
   static String? currentUsername;
+  static String? accessToken;
 
   static const String baseUrl = "http://10.0.2.2:8000/api";
 
@@ -22,36 +23,57 @@ class ApiService {
       InterceptorsWrapper(
         onRequest: (options, handler) async {
           final token = await _storage.read(key: "access");
-          print("🔑 Using Token: $token");
           if (token != null) {
             options.headers["Authorization"] = "Bearer $token";
           }
           return handler.next(options);
         },
-        onError: (error, handler) {
-          print("API ERROR: ${error.response?.data}");
-          return handler.next(error);
-        },
       ),
     );
   }
 
+  // 🔐 LOGIN
   static Future<bool> login(String username, String password) async {
     try {
       final response = await dio.post(
-        "/auth/token/",
-        data: {"username": username.trim(), "password": password.trim()},
+        '/auth/token/', // ✅ EXACT MATCH WITH urls.py
+        data: {'username': username, 'password': password},
       );
 
-      final accessToken = response.data["access"];
-      currentUsername = username;
-      await saveToken(accessToken);
+      if (response.statusCode == 200) {
+        debugPrint("LOGIN URL = ${dio.options.baseUrl}/api/auth/token/");
 
-      return true;
+        accessToken = response.data['access'];
+        currentUsername = username;
+
+        const storage = FlutterSecureStorage();
+        await storage.write(key: 'access_token', value: accessToken);
+        await storage.write(key: 'username', value: currentUsername);
+
+        return true;
+      }
     } catch (e) {
-      print("LOGIN ERROR: $e");
-      return false;
+      debugPrint("Login failed: $e");
+      debugPrint("LOGIN URL = ${dio.options.baseUrl}/api/auth/token/");
     }
+    return false;
+  }
+
+  // 🔁 RESTORE SESSION
+  static Future<bool> restoreSession() async {
+    accessToken = await _storage.read(key: "access");
+    currentUsername = await _storage.read(key: "username");
+
+    return accessToken != null && currentUsername != null;
+  }
+
+  // 🚪 LOGOUT
+  static Future<void> logout() async {
+    await _storage.delete(key: "access");
+    await _storage.delete(key: "username");
+
+    accessToken = null;
+    currentUsername = null;
   }
 
   static Future<Map<String, dynamic>> register({
@@ -256,6 +278,16 @@ class ApiService {
 
       return results.any((r) => r['book']['id'] == bookId);
     } catch (_) {
+      return false;
+    }
+  }
+
+  static Future<bool> cancelRequest(int requestId) async {
+    try {
+      await dio.delete("/bookrequests/$requestId/");
+      return true;
+    } catch (e) {
+      print("❌ Cancel request failed: $e");
       return false;
     }
   }
