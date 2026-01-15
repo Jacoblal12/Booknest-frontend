@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import '../services/api_service.dart';
-import 'package:dio/dio.dart';
 
 class AuthProvider extends ChangeNotifier {
   bool isLoading = false;
@@ -10,34 +9,12 @@ class AuthProvider extends ChangeNotifier {
     isLoading = true;
     notifyListeners();
 
-    try {
-      final response = await ApiService.dio.post(
-        "/auth/token/",
-        data: {
-          "username": username,
-          "password": password,
-        },
-      );
-
-      final token = response.data["access"];
-      await ApiService.saveToken(token);
-
-      isLoggedIn = true;
-      isLoading = false;
-      notifyListeners();
-      return true;
-    } catch (e) {
-    print("LOGIN ERROR: $e");
-
-    if (e is DioException) {
-      print("RESPONSE DATA: ${e.response?.data}");
-    }
+    final success = await ApiService.login(username, password);
 
     isLoading = false;
     notifyListeners();
-    return false;
-}
 
+    return success;
   }
 
   Future<void> logout() async {
