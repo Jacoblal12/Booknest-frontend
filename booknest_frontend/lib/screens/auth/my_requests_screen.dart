@@ -45,10 +45,22 @@ class _RequestCard extends StatelessWidget {
 
   const _RequestCard({required this.request});
 
+  bool get isRequester =>
+      request.requesterUsername == ApiService.currentUsername;
+
   bool get isOwner => request.bookOwnerUsername == ApiService.currentUsername;
+
+  bool get isPending => request.status == "pending";
+
+  bool get isApproved => request.status == "approved";
 
   @override
   Widget build(BuildContext context) {
+    print("DEBUG REQUEST:");
+    print("requesterUsername = ${request.requesterUsername}");
+    print("bookOwnerUsername = ${request.bookOwnerUsername}");
+    print("currentUser = ${ApiService.currentUsername}");
+
     return Card(
       elevation: 2,
       child: Padding(
@@ -71,31 +83,47 @@ class _RequestCard extends StatelessWidget {
 
             const SizedBox(height: 12),
 
-            // 👇 OWNER ACTIONS
-            if (isOwner && request.status == "pending")
-              Row(
-                children: [
-                  Expanded(
-                    child: ElevatedButton(
-                      onPressed: () => _updateStatus(context, "approved"),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.green,
+            // 👇 ACTION BUTTONS
+            if (isPending) ...[
+              // OWNER ACTIONS
+              if (isOwner)
+                Row(
+                  children: [
+                    Expanded(
+                      child: ElevatedButton(
+                        onPressed: () => _updateStatus(context, "approved"),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.green,
+                        ),
+                        child: const Text("Approve"),
                       ),
-                      child: const Text("Approve"),
                     ),
-                  ),
-                  const SizedBox(width: 8),
-                  Expanded(
-                    child: ElevatedButton(
-                      onPressed: () => _updateStatus(context, "rejected"),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.red,
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: ElevatedButton(
+                        onPressed: () => _updateStatus(context, "rejected"),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.red,
+                        ),
+                        child: const Text("Reject"),
                       ),
-                      child: const Text("Reject"),
                     ),
+                  ],
+                ),
+
+              // REQUESTER ACTION
+              if (isRequester && !isOwner)
+                SizedBox(
+                  width: double.infinity,
+                  child: OutlinedButton(
+                    onPressed: () => _cancelRequest(context),
+                    style: OutlinedButton.styleFrom(
+                      foregroundColor: Colors.red,
+                    ),
+                    child: const Text("Cancel Request"),
                   ),
-                ],
-              ),
+                ),
+            ],
           ],
         ),
       ),
@@ -120,6 +148,24 @@ class _RequestCard extends StatelessWidget {
 
     if (success) {
       Navigator.pop(context);
+    }
+  }
+
+  Future<void> _cancelRequest(BuildContext context) async {
+    final success = await ApiService.cancelRequest(request.id);
+
+    if (!context.mounted) return;
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(
+          success ? "Request cancelled" : "Failed to cancel request",
+        ),
+      ),
+    );
+
+    if (success) {
+      Navigator.pop(context); // TEMP (we’ll fix refresh next)
     }
   }
 }
